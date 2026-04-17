@@ -1,8 +1,19 @@
 """Data models for Task Manager."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
+
+from task_manager.config import (
+    DATE_FORMAT,
+    DEFAULT_PRIORITY,
+    DEFAULT_PROJECT,
+    DEFAULT_STATUS,
+    PRIORITY_EMOJI,
+    STATUS_EMOJI,
+    VALID_PRIORITIES,
+    VALID_STATUSES,
+)
 
 
 @dataclass
@@ -10,9 +21,9 @@ class Task:
     """Represents a task in the system."""
 
     title: str
-    project: str = "General"
-    priority: str = "medium"  # high, medium, low
-    status: str = "pending"   # pending, in_progress, done
+    project: str = DEFAULT_PROJECT
+    priority: str = DEFAULT_PRIORITY
+    status: str = DEFAULT_STATUS
     description: str = ""
     due_date: Optional[str] = None
     id: Optional[int] = None
@@ -20,35 +31,55 @@ class Task:
     completed_at: Optional[str] = None
 
     def __post_init__(self):
-        """Validate priority and status."""
-        valid_priorities = {"high", "medium", "low"}
-        valid_statuses = {"pending", "in_progress", "done"}
-
-        if self.priority not in valid_priorities:
-            raise ValueError(f"Priority must be one of {valid_priorities}")
-        if self.status not in valid_statuses:
-            raise ValueError(f"Status must be one of {valid_statuses}")
+        if self.priority not in VALID_PRIORITIES:
+            raise ValueError(
+                f"Priority must be one of {VALID_PRIORITIES}, got '{self.priority}'"
+            )
+        if self.status not in VALID_STATUSES:
+            raise ValueError(
+                f"Status must be one of {VALID_STATUSES}, got '{self.status}'"
+            )
+        if self.title is None or not str(self.title).strip():
+            raise ValueError("Title cannot be empty")
 
     @property
     def is_overdue(self) -> bool:
-        """Check if task is overdue."""
         if self.status == "done" or not self.due_date:
             return False
         try:
-            due = datetime.strptime(self.due_date, "%Y-%m-%d")
-            return due < datetime.now()
+            due = datetime.strptime(self.due_date, DATE_FORMAT)
+            return due.date() < datetime.now().date()
+        except ValueError:
+            return False
+
+    @property
+    def is_due_today(self) -> bool:
+        if self.status == "done" or not self.due_date:
+            return False
+        try:
+            due = datetime.strptime(self.due_date, DATE_FORMAT)
+            return due.date() == datetime.now().date()
         except ValueError:
             return False
 
     @property
     def priority_emoji(self) -> str:
-        """Get emoji for priority."""
-        return {"high": "🔴", "medium": "🟡", "low": "🟢"}.get(self.priority, "⚪")
+        return PRIORITY_EMOJI.get(self.priority, "⚪")
 
     @property
     def status_emoji(self) -> str:
-        """Get emoji for status."""
-        return {"pending": "⭕", "in_progress": "🔄", "done": "✅"}.get(self.status, "❓")
+        return STATUS_EMOJI.get(self.status, "❓")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize to plain dict (JSON-ready)."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Task":
+        """Build a Task from a dict produced by to_dict or external input."""
+        allowed = {f for f in cls.__dataclass_fields__}
+        filtered = {k: v for k, v in data.items() if k in allowed}
+        return cls(**filtered)
 
 
 @dataclass
@@ -63,12 +94,22 @@ class Project:
 
     @property
     def completion_rate(self) -> float:
-        """Calculate completion rate."""
         if self.total == 0:
             return 0.0
         return (self.done / self.total) * 100
 
     @property
     def active(self) -> int:
-        """Get number of active tasks."""
         return self.pending + self.in_progress
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize to plain dict (JSON-ready)."""
+        return {
+            "name": self.name,
+            "total": self.total,
+            "pending": self.pending,
+            "in_progress": self.in_progress,
+            "done": self.done,
+            "completion_rate": self.completion_rate,
+            "active": self.active,
+        }

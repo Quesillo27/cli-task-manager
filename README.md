@@ -1,401 +1,164 @@
 # CLI Task Manager
 
-A powerful command-line task management tool built with Python, Click, and SQLite. Organize your tasks, projects, and deadlines efficiently from the terminal.
-
-## Features
-
-- **Create & Manage Tasks**: Add tasks with titles, descriptions, priorities, and due dates
-- **Project Organization**: Group tasks by projects
-- **Priority Levels**: Set task priority (high, medium, low)
-- **Status Tracking**: Track task status (pending, in_progress, done)
-- **Task Search**: Find tasks by keyword
-- **Markdown Export**: Export tasks to beautifully formatted Markdown files
-- **Project Statistics**: View project completion rates and task counts
-- **Rich Output**: Beautiful tables and colored output using Rich library
-- **SQLite Backend**: Lightweight, local database at `~/.task-manager/tasks.db`
-
-## Installation
-
-### Option 1: Install from repository (Development)
-
-```bash
-cd /root/cli-task-manager
-pip install -e .
-```
-
-### Option 2: Install from requirements
-
-```bash
-cd /root/cli-task-manager
-pip install -r requirements.txt
-python main.py --help
-```
-
-### Option 3: Docker
-
-```bash
-docker build -t cli-task-manager .
-docker run cli-task-manager list
-```
-
-## Usage
-
-Once installed, use the `task` command:
-
-```bash
-task --help
-```
-
-### Basic Commands
-
-#### Add a Task
-
-```bash
-# Simple task
-task add "Buy groceries"
-
-# Task with project and priority
-task add "Write report" --project "Work" --priority high
-
-# Task with due date
-task add "Project deadline" --project "Work" --due "2026-04-15"
-
-# Task with description
-task add "Fix bug" --project "Dev" --priority high --description "Navigation menu not working" --due "2026-03-30"
-```
-
-#### List Tasks
-
-```bash
-# List all tasks
-task list
-
-# List by project
-task list --project "Work"
-
-# List by status
-task list --status pending
-task list --status done
-
-# Sort by different criteria
-task list --sort created
-task list --sort due_date
-task list --sort priority
-```
-
-#### View Task Details
-
-```bash
-task show 1
-task show 5
-```
-
-#### Mark Task as Done
-
-```bash
-task done 1
-task done 3
-```
-
-#### Update Task
-
-```bash
-# Update status
-task update 1 --status in_progress
-
-# Update priority
-task update 2 --priority high
-
-# Update multiple fields
-task update 3 --status done --title "Updated title" --project "NewProject"
-
-# Update due date
-task update 4 --due "2026-04-20"
-
-# Update description
-task update 5 --description "New task details"
-```
-
-#### Delete Task
-
-```bash
-task delete 1
-```
-
-#### Search Tasks
-
-```bash
-# Search by keyword
-task search "grocery"
-task search "urgent"
-```
-
-#### View Projects
-
-```bash
-task projects
-```
-
-Output:
-```
-┏━━━━━━━━┳━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━┳━━━━━━━━━━┓
-┃ Project ┃ Total ┃ Pending ┃ In Progress ┃ Done ┃ Completion ┃
-┡━━━━━━━━╇━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━╇━━━━━━━━━━┩
-│ Work    │  10  │   5    │     3     │  2  │    20%   │
-│ Home    │   8  │   4    │     2     │  2  │    25%   │
-│ General │   5  │   3    │     1     │  1  │    20%   │
-└─────────┴───────┴──────────┴───────────┴─────┴──────────┘
-```
-
-#### Export to Markdown
-
-```bash
-# Export all tasks
-task export --output tasks.md
-
-# Export specific project
-task export --project "Work" --output work_tasks.md
-
-# Export by status
-task export --status done --output completed.md
-```
-
-#### View Statistics
-
-```bash
-task stats
-```
-
-Output:
-```
-┏━━━━━━━━━━━━━━━━━━━━┓
-┃ Task Statistics    ┃
-├────────────────────┤
-│ Overall Statistics │
-│                    │
-│ Total Tasks: 23    │
-│ Pending: 12        │
-│ In Progress: 6     │
-│ Completed: 5       │
-│ Overdue: 2         │
-│                    │
-│ Projects: 3        │
-│ Completion Rate: 21.7% │
-└────────────────────┘
-```
-
-## Command Reference
-
-### Global Options
-
-- `--help`: Show help message for any command
-
-### Commands
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `add` | Create a new task | `task add "Task title" --project "Work" --priority high` |
-| `list` | List tasks with filters | `task list --project "Work" --status pending` |
-| `show` | Show task details | `task show 1` |
-| `done` | Mark task as completed | `task done 1` |
-| `update` | Update task fields | `task update 1 --status in_progress` |
-| `delete` | Delete a task | `task delete 1` |
-| `search` | Search tasks | `task search "keyword"` |
-| `projects` | List all projects | `task projects` |
-| `export` | Export to Markdown | `task export --output tasks.md` |
-| `stats` | View statistics | `task stats` |
-
-### Command Options
-
-#### `add` Command Options
-- `--project`, `-p`: Project name (default: "General")
-- `--priority`: Priority level: `high`, `medium`, `low` (default: "medium")
-- `--due`: Due date in YYYY-MM-DD format
-- `--description`, `-d`: Task description
-
-#### `list` Command Options
-- `--project`, `-p`: Filter by project
-- `--status`, `-s`: Filter by status: `pending`, `in_progress`, `done`
-- `--sort`: Sort by: `created`, `due_date`, `priority` (default: "created")
-
-#### `update` Command Options
-- `--status`, `-s`: New status
-- `--priority`: New priority
-- `--title`: New title
-- `--project`, `-p`: New project
-- `--due`: New due date
-- `--description`, `-d`: New description
-
-#### `export` Command Options
-- `--project`, `-p`: Export specific project only
-- `--status`, `-s`: Export specific status only
-- `--output`, `-o`: Output file path (required)
-
-## Data Storage
-
-Tasks are stored in SQLite database located at:
-
-```
-~/.task-manager/tasks.db
-```
-
-The database is automatically created on first use. You can safely delete this file to reset all tasks.
-
-## Project Structure
-
-```
-cli-task-manager/
-├── task_manager/
-│   ├── __init__.py        # Package init
-│   ├── cli.py             # CLI commands using Click
-│   ├── database.py        # SQLite database layer
-│   ├── models.py          # Data models (Task, Project)
-│   └── exporter.py        # Markdown exporter
-├── tests/
-│   ├── __init__.py
-│   └── test_database.py   # Unit tests
-├── main.py                # Entry point
-├── requirements.txt       # Python dependencies
-├── setup.py               # Installation script
-├── Dockerfile             # Docker configuration
-├── .gitignore             # Git ignore rules
-└── README.md              # This file
-```
-
-## Dependencies
-
-- **click**: CLI framework for building command-line interfaces
-- **rich**: Library for rich text and beautiful formatting in terminal
-- **sqlite3**: Built-in Python SQLite support (no external dependency)
-
-## Running Tests
-
-```bash
-python -m pytest tests/
-# or
-python -m unittest tests.test_database
-```
-
-## Examples
-
-### Complete Workflow
-
-```bash
-# Create a new project
-task add "Design mockups" --project "Website" --priority high --due "2026-04-05"
-task add "Setup database" --project "Website" --priority high --due "2026-04-10"
-task add "API integration" --project "Website" --priority medium --due "2026-04-15"
-
-# List project tasks
-task list --project "Website"
-
-# Start working on a task
-task update 1 --status in_progress
-
-# Complete a task
-task done 1
-
-# Check project progress
-task projects
-
-# Export for documentation
-task export --project "Website" --output website_tasks.md
-
-# View statistics
-task stats
-```
-
-### Markdown Export Example
-
-Generated markdown file structure:
-
-```markdown
-# All Tasks
-
-*Generated on 2026-03-25 14:30:45*
-
-## Project Statistics
-
-### Work
-- Total: 10 tasks
-- Pending: 5
-- In Progress: 3
-- Completed: 2
-- Completion Rate: 20.0%
-
-## Tasks
-
-### Work
-
-#### ✅ Completed
-- [x] **Complete project A** 🟢 (Low) — ID: 1
-  - Due: 2026-03-20
-  - Completed: 2026-03-22T14:30:00
-
-#### 🔄 In Progress
-- [ ] **Review documentation** 🟡 (Medium) — ID: 3
-  - Due: 2026-04-01
-
-#### ⭕ Pending
-- [ ] **Setup CI/CD** 🔴 (High) — ID: 2
-  - Due: 2026-03-30
-  - Details: Configure GitHub Actions pipeline
-```
-
-## Troubleshooting
-
-### Database file not found
-
-If you see database errors, the database directory will be created automatically:
-
-```bash
-mkdir -p ~/.task-manager
-```
-
-### Permission errors
-
-If you encounter permission errors, ensure you have write access to your home directory.
-
-### SQLite errors
-
-If the database becomes corrupted, you can reset it:
-
-```bash
-rm ~/.task-manager/tasks.db
-```
-
-This will delete all tasks. The database will be recreated on next use.
-
-## Performance Tips
-
-- Use `--project` filter when listing tasks from large databases
-- Search is case-insensitive and uses full-text matching
-- Database is indexed by project and status for fast queries
-
-## Future Enhancements
-
-- Recurring tasks
-- Task categories/tags
-- Due date notifications
-- Task filtering by date range
-- Bulk operations (delete/update multiple)
-- Task history/changelog
-- Export to JSON, CSV formats
-- Web interface
-- Cloud sync
-
-## License
-
-MIT License - Feel free to use this project for personal or commercial purposes.
-
-## Contributing
-
-Contributions are welcome! Feel free to submit issues or pull requests.
-
-## Support
-
-For issues or questions, please open an issue in the repository.
+![tests](https://img.shields.io/badge/tests-135%20passing-brightgreen)
+![python](https://img.shields.io/badge/python-3.8%2B-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+
+A production-grade command-line task manager built with Python, Click, Rich and SQLite. Organize tasks across projects, track priorities and deadlines, and export to Markdown / JSON / CSV — all from the terminal.
 
 ---
 
-Made with Python, Click, and Rich. Happy task managing!
+## Features
+
+- **CRUD**: add, list, show, update, done, delete tasks
+- **Projects**: auto-grouped tasks with completion statistics
+- **Filters**: by project, status, priority, due date
+- **Time-based views**: `today`, `overdue`, `upcoming --days N`
+- **Bulk operations**: `bulk-done`, `bulk-delete`, `clear`
+- **Export**: Markdown, JSON, CSV formats
+- **Import**: JSON and CSV round-trip
+- **Pagination**: `--limit` / `--offset` on `list`
+- **Structured logger** (env-var controlled, silent by default)
+- **Configurable DB path** via `TASK_MANAGER_DB`
+- **SQLite backend** — zero external services
+
+## Installation
+
+```bash
+git clone https://github.com/Quesillo27/cli-task-manager.git
+cd cli-task-manager
+pip install -e .
+task --help
+```
+
+Docker:
+
+```bash
+docker build -t cli-task-manager .
+docker run --rm -v $HOME/.task-manager:/root/.task-manager cli-task-manager list
+```
+
+## Quickstart
+
+```bash
+task add "Write report" --project Work --priority high --due 2026-04-30
+task add "Review PR" --project Work --priority medium
+task list
+task done 1
+task stats
+task export --output tasks.md
+```
+
+## Command reference
+
+### Task CRUD
+
+| Command | Description |
+|---|---|
+| `add TITLE [--project P] [--priority P] [--due YYYY-MM-DD] [--description TEXT]` | Create a new task |
+| `list [--project P] [--status S] [--sort KEY] [--order asc/desc] [--limit N] [--offset N]` | List with filters, sort and pagination |
+| `show ID` | Display full task details |
+| `update ID [--status] [--priority] [--title] [--project] [--due] [--description]` | Update fields |
+| `done ID` | Mark a task as completed |
+| `delete ID [--yes]` | Delete a task (confirmation unless `--yes`) |
+| `search QUERY` | Full-text search on title + description |
+
+### Time filters
+
+| Command | Description |
+|---|---|
+| `today` | List tasks due today (non-completed) |
+| `overdue` | List tasks past their due date and not done |
+| `upcoming --days N` | List tasks due within the next N days |
+
+### Bulk operations
+
+| Command | Description |
+|---|---|
+| `bulk-done ID1 ID2 …` | Mark multiple tasks as done in one transaction |
+| `bulk-delete ID1 ID2 … [--yes]` | Delete multiple tasks |
+| `clear [--yes]` | Wipe the whole database |
+
+### Projects & stats
+
+| Command | Description |
+|---|---|
+| `projects` | List every project with task counts and completion rate |
+| `stats` | Aggregate statistics across all tasks |
+| `version` | Show installed version |
+
+### Import / Export
+
+| Command | Description |
+|---|---|
+| `export --output FILE [--format md/json/csv] [--project P] [--status S]` | Export tasks to Markdown, JSON or CSV |
+| `import --input FILE [--format json/csv]` | Import from JSON or CSV (auto-detected by extension) |
+
+## Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `TASK_MANAGER_DB` | `~/.task-manager/tasks.db` | Override the SQLite file path |
+| `TASK_MANAGER_LOG_LEVEL` | `WARNING` | Logger verbosity (`DEBUG`/`INFO`/`WARNING`/`ERROR`) |
+
+## Project layout
+
+```
+task_manager/
+├── __init__.py
+├── cli.py                  # Click root group — wires commands together
+├── config.py               # Constants, defaults, env-var resolution
+├── database.py             # SQLite layer (parameterized queries)
+├── exporter.py             # Markdown / JSON / CSV exporter + importer
+├── logger.py               # Structured logger
+├── models.py               # Task, Project dataclasses
+├── renderers.py            # Reusable Rich tables / panels
+├── validators.py           # Input validation helpers
+└── commands/
+    ├── task_cmds.py        # add / list / show / update / done / delete / search
+    ├── project_cmds.py     # projects / stats / version
+    ├── filter_cmds.py      # today / overdue / upcoming
+    ├── bulk_cmds.py        # bulk-done / bulk-delete / clear
+    └── export_cmds.py      # export / import
+
+tests/
+├── test_cli.py             # 39 Click runner tests
+├── test_database.py        # 38 DB integration tests
+├── test_exporter.py        # 15 format tests (MD, JSON, CSV, import)
+├── test_models.py          # 20 model + serialization tests
+└── test_validators.py      # 23 validator tests
+```
+
+## Development
+
+```bash
+make install-dev       # deps + pytest + black + flake8 + mypy
+make test              # run the suite (135 tests)
+make test-coverage     # coverage report (htmlcov/)
+make lint              # flake8
+make format            # black
+```
+
+## Security & data integrity notes
+
+- All SQL queries use **parameterized statements**. `list_tasks` now rejects any `order_by` / `direction` value that isn't on an allowlist, preventing SQL injection through sort parameters.
+- `stats` is safe on an empty database (no division-by-zero).
+- `update` preserves `completed_at` semantics: set on `done`, cleared when reverting to pending/in_progress.
+- Bulk operations use a single transaction each — partial failures roll back.
+
+## Roadmap
+
+Larger features worth their own sprint:
+
+- **Recurring tasks** — cron-style schedules with automatic instance creation
+- **Tags / labels** — many-to-many taxonomy independent from projects
+- **Due-date notifications** — local / email / Telegram via the notification-service sibling project
+- **Web UI** — Flask / FastAPI dashboard reading the same SQLite file
+- **Cloud sync** — S3 / Dropbox backend, merge conflict handling
+- **Task history & undo** — per-task audit log
+- **JSON Schema validation** on import
+- **i18n** of CLI messages
+
+## License
+
+MIT — see `LICENSE`.

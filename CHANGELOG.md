@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-04-17
+
+### Added
+- Modular package layout under `task_manager/commands/` (CRUD, bulk, filter, project, export command groups).
+- Centralized configuration (`config.py`), structured logger (`logger.py`), reusable Rich renderers (`renderers.py`), shared validators (`validators.py`).
+- JSON and CSV export formats (via `--format` on `export`).
+- Import command (`task import --input FILE`) for JSON and CSV payloads.
+- New commands: `today`, `overdue`, `upcoming`, `bulk-done`, `bulk-delete`, `clear`, `version`.
+- `list --order asc/desc`, `list --limit`, `list --offset` (pagination).
+- `TASK_MANAGER_DB` and `TASK_MANAGER_LOG_LEVEL` environment variables.
+- `is_due_today` property on `Task`, `to_dict` / `from_dict` serializers on `Task` and `Project`.
+- Integration test suite covering the Click CLI end-to-end; total tests grew **19 → 135**.
+
+### Fixed
+- **Security**: `list_tasks` now validates `order_by` and `direction` against an allowlist, blocking SQL injection via sort parameters.
+- **Crash**: `stats` no longer errors on an empty database (prior division-by-zero / malformed f-string).
+- `is_overdue` now compares dates at day granularity instead of date-vs-datetime.
+- `MarkdownExporter` preserves backwards compatibility while the new `Exporter` handles multi-format output.
+
+### Changed
+- `update` always clears `completed_at` when moving out of `done`, and sets it when moving into `done`.
+- `delete` now accepts `--yes` for non-interactive use (the Click confirmation still applies by default).
+- Parent directories are created automatically when the SQLite path lives in a nested folder.
+
 ## [1.0.0] - 2026-03-25
 
 ### Added
@@ -46,16 +70,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Planned Features (Future Releases)
 
-### [1.1.0] - Planned
-- [ ] JSON and CSV export formats
+### [1.2.0] - Planned
 - [ ] Recurring task support
 - [ ] Task tags/categories
-- [ ] Bulk operations (delete/update multiple)
 - [ ] Date range filtering
-- [ ] Config file support
+- [ ] Config file support (TOML)
 - [ ] Shell completion (bash, zsh)
 
-### [1.2.0] - Planned
+### [1.3.0] - Planned
 - [ ] Task history/audit log
 - [ ] Task templates
 - [ ] Email/Slack notifications
@@ -64,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [ ] Web interface
 - [ ] Cloud sync support
 
-### [2.0.0] - Planned
+### [2.0.0] - Planned (was [1.3.0])
 - [ ] Multi-user support
 - [ ] Team collaboration features
 - [ ] Web API

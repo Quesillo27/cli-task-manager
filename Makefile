@@ -33,10 +33,10 @@ install-dev:
 	pip install pytest pytest-cov black flake8 mypy
 
 test:
-	python -m unittest discover tests -q
+	python -m pytest tests/ -q
 
 test-verbose:
-	python -m unittest discover tests -v
+	python -m pytest tests/ -v
 
 test-coverage:
 	python -m pytest tests/ --cov=task_manager --cov-report=html --cov-report=term

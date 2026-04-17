@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="cli-task-manager",
-    version="1.0.0",
+    version="1.1.0",
     author="Task Manager Team",
     description="A command-line task management tool with SQLite backend",
     long_description=long_description,

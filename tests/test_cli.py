@@ -60,6 +60,20 @@ class TestAddList(CLITestCase):
         result = self.invoke("list")
         self.assertIn("No tasks found", result.output)
 
+    def test_list_offset_without_limit(self):
+        for name in ["A", "B", "C"]:
+            self.invoke("add", name)
+        result = self.invoke("list", "--sort", "title", "--order", "asc", "--offset", "1")
+        self.assertEqual(result.exit_code, 0)
+        self.assertNotIn("A", result.output)
+        self.assertIn("B", result.output)
+        self.assertIn("C", result.output)
+
+    def test_list_rejects_negative_offset(self):
+        result = self.invoke("list", "--offset", "-1")
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("Offset must be zero or positive", result.output)
+
 
 class TestShowUpdateDelete(CLITestCase):
     def _add_task(self, title: str = "Demo") -> int:

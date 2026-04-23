@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-04-23
+
+### Fixed
+- `list --offset N` now works even when `--limit` is omitted, matching the documented pagination behavior.
+- `list` now rejects negative `--limit` and `--offset` values instead of silently producing confusing results.
+- JSON and CSV imports are now atomic: invalid rows abort the import before any task is persisted.
+- `pyproject.toml` project URLs now point to the real GitHub repository instead of placeholder metadata.
+
 ## [1.1.0] - 2026-04-17
 
 ### Added

@@ -18,6 +18,7 @@ A production-grade command-line task manager built with Python, Click, Rich and 
 - **Export**: Markdown, JSON, CSV formats
 - **Import**: JSON and CSV round-trip
 - **Pagination**: `--limit` / `--offset` on `list`
+- **Safer imports**: JSON / CSV imports validate first and avoid partial writes on invalid rows
 - **Structured logger** (env-var controlled, silent by default)
 - **Configurable DB path** via `TASK_MANAGER_DB`
 - **SQLite backend** — zero external services
@@ -56,7 +57,7 @@ task export --output tasks.md
 | Command | Description |
 |---|---|
 | `add TITLE [--project P] [--priority P] [--due YYYY-MM-DD] [--description TEXT]` | Create a new task |
-| `list [--project P] [--status S] [--sort KEY] [--order asc/desc] [--limit N] [--offset N]` | List with filters, sort and pagination |
+| `list [--project P] [--status S] [--sort KEY] [--order asc/desc] [--limit N] [--offset N]` | List with filters, sort and pagination (`--offset` also works without `--limit`) |
 | `show ID` | Display full task details |
 | `update ID [--status] [--priority] [--title] [--project] [--due] [--description]` | Update fields |
 | `done ID` | Mark a task as completed |
@@ -92,7 +93,7 @@ task export --output tasks.md
 | Command | Description |
 |---|---|
 | `export --output FILE [--format md/json/csv] [--project P] [--status S]` | Export tasks to Markdown, JSON or CSV |
-| `import --input FILE [--format json/csv]` | Import from JSON or CSV (auto-detected by extension) |
+| `import --input FILE [--format json/csv]` | Import from JSON or CSV (auto-detected by extension, atomic on invalid input) |
 
 ## Environment variables
 

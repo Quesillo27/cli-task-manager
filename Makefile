@@ -1,5 +1,7 @@
 .PHONY: help install install-dev test lint format clean run-demo docker-build docker-run
 
+PYTHON ?= python3
+
 help:
 	@echo "CLI Task Manager - Development Commands"
 	@echo ""
@@ -33,13 +35,13 @@ install-dev:
 	pip install pytest pytest-cov black flake8 mypy
 
 test:
-	python -m pytest tests/ -q
+	$(PYTHON) -m pytest tests/ -q
 
 test-verbose:
-	python -m pytest tests/ -v
+	$(PYTHON) -m pytest tests/ -v
 
 test-coverage:
-	python -m pytest tests/ --cov=task_manager --cov-report=html --cov-report=term
+	$(PYTHON) -m pytest tests/ --cov=task_manager --cov-report=html --cov-report=term
 	@echo "Coverage report generated in htmlcov/index.html"
 
 lint:
@@ -64,10 +66,10 @@ clean-db:
 
 run-demo:
 	@echo "Running demo scenario..."
-	python main.py add "Demo Task 1" --project "Demo" --priority high --due "2026-04-01"
-	python main.py add "Demo Task 2" --project "Demo" --priority medium
-	python main.py add "Demo Task 3" --project "General"
-	python main.py list
+	$(PYTHON) main.py add "Demo Task 1" --project "Demo" --priority high --due "2026-04-01"
+	$(PYTHON) main.py add "Demo Task 2" --project "Demo" --priority medium
+	$(PYTHON) main.py add "Demo Task 3" --project "General"
+	$(PYTHON) main.py list
 	@echo "Demo complete!"
 
 docker-build:

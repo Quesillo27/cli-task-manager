@@ -17,6 +17,7 @@ from task_manager.validators import (
     ValidationError,
     validate_due_date,
     validate_order,
+    validate_pagination,
     validate_priority,
     validate_sort_key,
     validate_status,
@@ -111,6 +112,7 @@ def list_(
         sort_column = validate_sort_key(sort)
         direction = validate_order(order)
         validate_status(status)
+        limit, offset = validate_pagination(limit, offset)
     except ValidationError as exc:
         console.print(f"[red]Error: {exc}[/red]")
         raise click.Abort()

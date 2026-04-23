@@ -114,6 +114,13 @@ class TestTaskDB(unittest.TestCase):
         page = self.db.list_tasks(limit=2, offset=2)
         self.assertEqual(len(page), 2)
 
+    def test_list_tasks_with_offset_without_limit(self):
+        for i in range(5):
+            self.db.add_task(Task(title=f"Task {i}"))
+        page = self.db.list_tasks(offset=2)
+        self.assertEqual(len(page), 3)
+        self.assertEqual(page[0].title, "Task 2")
+
     def test_list_tasks_rejects_invalid_order_by(self):
         with self.assertRaises(ValueError):
             self.db.list_tasks(order_by="DROP TABLE tasks")
@@ -121,6 +128,14 @@ class TestTaskDB(unittest.TestCase):
     def test_list_tasks_rejects_invalid_direction(self):
         with self.assertRaises(ValueError):
             self.db.list_tasks(direction="EVIL")
+
+    def test_list_tasks_rejects_negative_limit(self):
+        with self.assertRaises(ValueError):
+            self.db.list_tasks(limit=-1)
+
+    def test_list_tasks_rejects_negative_offset(self):
+        with self.assertRaises(ValueError):
+            self.db.list_tasks(offset=-1)
 
     # ---- Search -----------------------------------------------------------
 

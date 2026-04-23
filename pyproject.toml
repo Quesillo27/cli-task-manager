@@ -46,10 +46,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/cli-task-manager"
-Documentation = "https://github.com/yourusername/cli-task-manager#readme"
-Repository = "https://github.com/yourusername/cli-task-manager.git"
-Issues = "https://github.com/yourusername/cli-task-manager/issues"
+Homepage = "https://github.com/Quesillo27/cli-task-manager"
+Documentation = "https://github.com/Quesillo27/cli-task-manager#readme"
+Repository = "https://github.com/Quesillo27/cli-task-manager.git"
+Issues = "https://github.com/Quesillo27/cli-task-manager/issues"
 
 [project.scripts]
 task = "task_manager.cli:cli"

@@ -94,6 +94,40 @@ class TaskDB:
         log.info("Task added id=%s project=%s", task_id, task.project)
         return task_id
 
+    def add_tasks(self, tasks: List[Task]) -> int:
+        """Insert multiple tasks atomically. Returns the imported count."""
+        if not tasks:
+            return 0
+
+        now = datetime.now().isoformat()
+        rows = [
+            (
+                task.title,
+                task.description,
+                task.project,
+                task.priority,
+                task.status,
+                task.due_date,
+                now,
+            )
+            for task in tasks
+        ]
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.executemany(
+                """
+                INSERT INTO tasks
+                (title, description, project, priority, status, due_date, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                rows,
+            )
+            conn.commit()
+
+        log.info("Tasks imported count=%s", len(tasks))
+        return len(tasks)
+
     def get_task(self, task_id: int) -> Optional[Task]:
         """Return a task by ID, or None if missing."""
         with self._get_connection() as conn:
@@ -135,6 +169,10 @@ class TaskDB:
             raise ValueError(
                 f"direction must be ASC or DESC, got '{direction}'"
             )
+        if limit < 0:
+            raise ValueError(f"limit must be zero or positive, got '{limit}'")
+        if offset < 0:
+            raise ValueError(f"offset must be zero or positive, got '{offset}'")
 
         query = "SELECT * FROM tasks WHERE 1=1"
         params: list = []
@@ -147,12 +185,14 @@ class TaskDB:
             params.append(status)
 
         query += f" ORDER BY {order_by} {direction_norm}"
-        if limit and limit > 0:
+        if limit > 0:
             query += " LIMIT ?"
             params.append(int(limit))
-            if offset and offset > 0:
-                query += " OFFSET ?"
-                params.append(int(offset))
+        elif offset > 0:
+            query += " LIMIT -1"
+        if offset > 0:
+            query += " OFFSET ?"
+            params.append(int(offset))
 
         with self._get_connection() as conn:
             cursor = conn.cursor()

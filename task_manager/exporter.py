@@ -237,33 +237,35 @@ def import_tasks_from_json(db: TaskDB, path: str) -> int:
     else:
         raise ExporterError("Invalid import payload: expected list or {'tasks': [...]}")
 
-    imported = 0
-    for entry in raw_tasks:
+    tasks = []
+    for index, entry in enumerate(raw_tasks, start=1):
         if not isinstance(entry, dict):
             continue
         entry = dict(entry)
         entry.pop("id", None)
         entry.pop("created_at", None)
         entry.pop("completed_at", None)
-        task = Task.from_dict(entry)
-        db.add_task(task)
-        imported += 1
-    return imported
+        try:
+            tasks.append(Task.from_dict(entry))
+        except ValueError as exc:
+            raise ExporterError(f"Invalid JSON task at item {index}: {exc}") from exc
+    return db.add_tasks(tasks)
 
 
 def import_tasks_from_csv(db: TaskDB, path: str) -> int:
     """Load tasks from a CSV file with the same columns emitted by the CSV exporter."""
-    imported = 0
+    tasks = []
     with open(path, newline="", encoding="utf-8") as fp:
         reader = csv.DictReader(fp)
-        for row in reader:
+        for index, row in enumerate(reader, start=2):
             cleaned = {k: (v if v != "" else None) for k, v in row.items()}
             cleaned.pop("id", None)
             cleaned.pop("created_at", None)
             cleaned.pop("completed_at", None)
             if not cleaned.get("title"):
                 continue
-            task = Task.from_dict(cleaned)
-            db.add_task(task)
-            imported += 1
-    return imported
+            try:
+                tasks.append(Task.from_dict(cleaned))
+            except ValueError as exc:
+                raise ExporterError(f"Invalid CSV row {index}: {exc}") from exc
+    return db.add_tasks(tasks)

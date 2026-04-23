@@ -100,3 +100,11 @@ def validate_task_ids(values: Iterable[int]) -> list:
             raise ValidationError(f"Task ID must be positive, got {task_id}")
         cleaned.append(task_id)
     return cleaned
+
+
+def validate_pagination(limit: int, offset: int) -> tuple:
+    if limit < 0:
+        raise ValidationError(f"Limit must be zero or positive, got {limit}")
+    if offset < 0:
+        raise ValidationError(f"Offset must be zero or positive, got {offset}")
+    return limit, offset

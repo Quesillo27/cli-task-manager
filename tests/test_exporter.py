@@ -158,6 +158,24 @@ class TestImport(unittest.TestCase):
         )
         self.assertEqual(import_tasks_from_csv(self.db, str(path)), 1)
 
+    def test_import_json_is_atomic_on_invalid_task(self):
+        payload = [{"title": "Valid"}, {"title": "", "priority": "high"}]
+        path = Path(self.tmp.name) / "bad.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        with self.assertRaises(ExporterError):
+            import_tasks_from_json(self.db, str(path))
+        self.assertEqual(self.db.count_tasks(), 0)
+
+    def test_import_csv_is_atomic_on_invalid_row(self):
+        path = Path(self.tmp.name) / "bad.csv"
+        path.write_text(
+            "title,priority\nValid,high\nBroken,urgent\n",
+            encoding="utf-8",
+        )
+        with self.assertRaises(ExporterError):
+            import_tasks_from_csv(self.db, str(path))
+        self.assertEqual(self.db.count_tasks(), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
